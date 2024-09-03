@@ -18,14 +18,16 @@ class UseCase:
         phone_number: str,
     ) -> Customer:
         """create_customer"""
-        existing_customer = self.account_repository.find_customer_by_unique_key(
-            name, phone_number, email
-        )
-        if existing_customer:
-            return existing_customer
+        if email in self.account_repository.customers:
+            return self.account_repository.customers[email]
 
         customer_id = uuid4()
-        customer = Customer(customer_id, name, email, phone_number)
+        customer = Customer(
+            customer_id=customer_id,
+            name=name,
+            email=email,
+            phone_number=phone_number,
+        )
         self.account_repository.save_customer(customer)
         return customer
 
@@ -34,14 +36,17 @@ class UseCase:
         name: str,
         email: str,
         phone_number: str,
-        *args,
-    ):
+    ) -> Account:
         """create_account"""
         customer = self.create_customer(name, email, phone_number)
-        self.account_repository.save_customer(customer)
         account_id = uuid4()
-        account_number = f"BOAZ{str(account_id)[:12]}"
-        account = Account(account_id, customer.customer_id, account_number, 0)
+        account_number = f"BO{str(account_id)[:12]}"
+        account = Account(
+            account_id=account_id,
+            customer_id=customer.customer_id,
+            account_number=account_number,
+            balance=0,
+        )
         self.account_repository.save_account(account)
         return account
 
@@ -59,7 +64,7 @@ class UseCase:
             account.withdraw(amount)
         self.account_repository.save_account(account)
 
-    def generate_account_statement(self, account_id: UUID):
+    def generate_account_statement(self, account_id: UUID) -> str:
         """generate_account_statement"""
         account = self.account_repository.find_account_by_id(account_id)
         statement = f"Account Number: {account.account_number}\n"

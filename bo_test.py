@@ -1,13 +1,13 @@
 """answers"""
 import random
 
-from api.main import AccountAPI
+from api.main import AccountRepository
 from core.main import UseCase
 
 
 def initialize_use_case():
     """Initializes the use case with an account repository."""
-    account_repository = AccountAPI()
+    account_repository = AccountRepository()
     return UseCase(account_repository)
 
 
